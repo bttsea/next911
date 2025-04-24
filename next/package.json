@@ -43,11 +43,14 @@
     "next": "./dist/bin/next"
   },
   "scripts": {
-    "build": "taskr",
-    "release": "taskr release",
-    "prepublish": "npm run release && yarn types",
-    "types": "tsc --declaration --emitDeclarationOnly --declarationDir dist",
-    "typescript": "tsc --noEmit --declaration"
+    "build": "set NODE_OPTIONS=--openssl-legacy-provider && taskr",
+    "release": "set NODE_OPTIONS=--openssl-legacy-provider && taskr release",
+
+    "prepublish_old": "yarn release && yarn types",
+    "release_old": "taskr release",
+    "types_old": "tsc --declaration --emitDeclarationOnly --declarationDir dist",   
+    "typescript_old": "tsc --noEmit --declaration",   
+    "broken_test_old": "echo 'this is deprecated'"  
   },
   "taskr": {
     "requires": [
@@ -58,13 +61,14 @@
   },
   "dependencies": {
     "@ampproject/toolbox-optimizer": "1.0.1",
-    "@babel/core": "7.4.5",
+    "@babel/core": "7.12.10",
+    "@babel/node": "7.12.10",
     "@babel/plugin-proposal-class-properties": "7.4.4",
     "@babel/plugin-proposal-object-rest-spread": "7.4.4",
     "@babel/plugin-syntax-dynamic-import": "7.2.0",
     "@babel/plugin-transform-modules-commonjs": "7.4.4",
     "@babel/plugin-transform-runtime": "7.4.4",
-    "@babel/preset-env": "7.4.5",
+    "@babel/preset-env": "7.12.11",
     "@babel/preset-react": "7.0.0",
     "@babel/preset-typescript": "7.3.3",
     "@babel/runtime": "7.4.5",
@@ -101,6 +105,7 @@
     "mini-css-extract-plugin": "0.8.0",
     "mkdirp": "0.5.1",
     "node-fetch": "2.6.0",
+    "node-notifier": "10.0.1",
     "ora": "3.4.0",
     "path-to-regexp": "2.1.0",
     "pnp-webpack-plugin": "1.5.0",
@@ -135,7 +140,7 @@
     "@babel/parser": "7.4.5",
     "@taskr/clear": "1.1.0",
     "@taskr/esnext": "1.1.0",
-    "@taskr/watch": "1.1.0",
+    "@taskr/watch": "1.1.0",    
     "@types/amphtml-validator": "1.0.0",
     "@types/babel-types": "7.0.7",
     "@types/babel__core": "7.1.2",
@@ -166,14 +171,14 @@
     "@types/webpack-dev-middleware": "2.0.3",
     "@types/webpack-hot-middleware": "2.16.5",
     "@types/webpack-sources": "0.1.5",
-    "@zeit/ncc": "0.18.5",
+    "@zeit/ncc": "0.22.3",
     "arg": "4.1.0",
     "babel-plugin-dynamic-import-node": "2.2.0",
     "nanoid": "2.0.3",
     "resolve": "1.11.0",
-    "taskr": "1.1.0",
+    "taskr": "^1.1.0",
     "text-table": "0.2.0",
-    "typescript": "3.5.1",
+    "typescript": "4.5.5",
     "unistore": "3.4.1"
   },
   "engines": {

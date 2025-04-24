@@ -1,4 +1,7 @@
 'use strict'
+
+console.log('[taskfile-typescript] loaded')
+
 try {
   const ts = require('typescript')
   const extname = require('path').extname

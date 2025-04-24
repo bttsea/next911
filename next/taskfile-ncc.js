@@ -3,6 +3,7 @@
 const ncc = require('@zeit/ncc')
 const { existsSync, readFileSync } = require('fs')
 const { basename, dirname, extname, join, relative } = require('path')
+console.log('[taskfile-ncc] loaded')
 
 module.exports = function (task) {
   task.plugin('ncc', {}, function * (file, options) {

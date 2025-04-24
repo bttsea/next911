@@ -1,6 +1,7 @@
 // taskr babel plugin with Babel 7 support
 // https://github.com/lukeed/taskr/pull/305
 'use strict'
+console.log('[taskfile-babel] loaded');
 
 const extname = require('path').extname
 const transform = require('@babel/core').transform
