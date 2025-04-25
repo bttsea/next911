@@ -4,9 +4,10 @@
   "private": true,
   "private_why": "private: true 是建议加上的，防止误发布到 npm",
   "scripts": {
-    "dev": "cross-env NODE_OPTIONS=--inspect node ./node_modules/next/bin/next dev"
+    "dev": "cross-env NODE_OPTIONS=\"--inspect --openssl-legacy-provider\" node ./node_modules/next/dist/bin/next dev"
   },
   "dependencies": { 
+    "next": "file:H:\\next911\\next",
     "react": "^16.8.0",
     "react-dom": "^16.8.0"
   },
