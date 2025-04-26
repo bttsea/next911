@@ -11,7 +11,14 @@ extensions:isServer?[...(useTypeScript?['.tsx','.ts']:[]),'.js','.mjs','.jsx','.
 'next/head':'next/dist/next-server/lib/head.js','next/router':'next/dist/client/router.js','next/config':'next/dist/next-server/lib/runtime-config.js','next/dynamic':'next/dist/next-server/lib/dynamic.js',next:_constants.NEXT_PROJECT_ROOT,[_constants.PAGES_DIR_ALIAS]:pagesDir,[_constants.DOT_NEXT_ALIAS]:distDir},mainFields:isServer?['main','module']:['browser','module','main'],plugins:[_pnpWebpackPlugin.default]};const webpackMode=dev?'development':'production';const terserPluginConfig={parallel:true,sourceMap:false,cache:true,cpus:config.experimental.cpus,distDir:distDir};const terserOptions={parse:{ecma:8},compress:{ecma:5,warnings:false,// The following two options are known to break valid JavaScript code
 comparisons:false,inline:2// https://github.com/zeit/next.js/issues/7178#issuecomment-493048965
 },mangle:{safari10:true},output:{ecma:5,safari10:true,comments:false,// Fixes usage of Emoji and certain Regex
-ascii_only:true}};const devtool=dev?'cheap-module-source-map':false;// Contains various versions of the Webpack SplitChunksPlugin used in different build types
+ascii_only:true}};let devtool=dev?'cheap-module-source-map':false;/// devtool = dev ? 'source-map' : false
+////config.devtool = 'source-map';
+//   选项名	说明
+// source-map	生成完整的 .map 文件，推荐调试用
+// cheap-module-source-map	默认 dev 模式下使用，性能更好，但不含列号
+// false	关闭 sourcemap，生产默认是 false
+///devtool =  'source-map';
+// Contains various versions of the Webpack SplitChunksPlugin used in different build types
 const splitChunksConfigs={dev:{cacheGroups:{default:false,vendors:false}},prod:{chunks:'all',cacheGroups:{default:false,vendors:false,commons:{name:'commons',chunks:'all',minChunks:totalPages>2?totalPages*0.5:2},react:{name:'commons',chunks:'all',test:/[\\/]node_modules[\\/](react|react-dom|scheduler)[\\/]/}}},prodGranular:{chunks:'initial',cacheGroups:{default:false,vendors:false,framework:{// Framework chunk applies to modules in dynamic chunks, unlike shared chunks
 // TODO(atcastle): Analyze if other cache groups should be set to 'all' as well
 chunks:'all',name:'framework',test:/[\\/]node_modules[\\/](react|react-dom|scheduler|prop-types)[\\/]/,priority:40},lib:{test(module){return module.size()>160000&&/node_modules[/\\]/.test(module.identifier());},name(module){return _crypto.default.createHash('sha1').update(module.libIdent({context:dir})).digest('hex').substring(0,8);},priority:30,minChunks:1,reuseExistingChunk:true},commons:{name:'commons',minChunks:totalPages,priority:20},shared:{name(module,chunks){return _crypto.default.createHash('sha1').update(chunks.reduce((acc,chunk)=>{return acc+chunk.name;},'')).digest('hex');},priority:10,minChunks:2,reuseExistingChunk:true}},maxInitialRequests:20}};// Select appropriate SplitChunksPlugin config for this build

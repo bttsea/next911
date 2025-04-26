@@ -1,5 +1,8 @@
 const notifier = require('node-notifier')
 const relative = require('path').relative
+const {mkdirSync,  writeFileSync } = require('fs');
+const { join, dirname } = require('path')
+
 
 const babelClientOpts = {
   presets: [
@@ -180,12 +183,50 @@ export async function nextbuildstatic (task, opts) {
   notify('Compiled export files')
 }
 
+function saveSourcemap(file, baseDir = 'dist/pages') {
+  if (file.map) {
+    const mapPath = join(baseDir, file.base + '.map')
+    mkdirSync(dirname(mapPath), { recursive: true })
+    writeFileSync(mapPath, JSON.stringify(file.map))
+    console.log('✔ sourcemap saved:', mapPath)
+  }
+}
+
+
+
 export async function pages (task, opts) {
   await task
     .source(opts.src || 'pages/**/*.+(js|ts|tsx)')
     .babel(babelClientOpts)
+ 
     .target('dist/pages')
 }
+
+
+//*
+
+// module.exports.pages = async function (task, opts) {
+//   await task
+//     .source(opts.src || 'pages/**/*.+(js|ts|tsx)')
+//     .babel(babelClientOpts, {
+//       stripExtension: false
+//     })
+//     .run(async function (file) {
+//       if (file.map) {
+//         const mapPath = join('dist/pages', file.base + '.map');
+//         writeFileSync(mapPath, JSON.stringify(file.map));
+//         console.log('✔ sourcemap saved:', mapPath);
+//       }
+//     })
+//     .target('dist/pages');
+// };
+/*** */
+
+
+
+
+
+
 
 export async function telemetry (task, opts) {
   await task

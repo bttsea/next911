@@ -195,7 +195,17 @@ export default async function getBaseWebpackConfig(
     },
   }
 
-  const devtool = dev ? 'cheap-module-source-map' : false
+  let devtool = dev ? 'cheap-module-source-map' : false;
+ /// devtool = dev ? 'source-map' : false
+  ////config.devtool = 'source-map';
+//   选项名	说明
+// source-map	生成完整的 .map 文件，推荐调试用
+// cheap-module-source-map	默认 dev 模式下使用，性能更好，但不含列号
+// false	关闭 sourcemap，生产默认是 false
+
+///devtool =  'source-map';
+
+
 
   // Contains various versions of the Webpack SplitChunksPlugin used in different build types
   const splitChunksConfigs: {
