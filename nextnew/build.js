@@ -1,20 +1,14 @@
-const babel = require('@babel/core');
-const glob = require('fast-glob');
+const babel = require('@babel/core');// babel 编译
+const glob = require('fast-glob');// fast-glob 找文件
 const path = require('path');
-const fs = require('fs-extra');
-const { exec } = require('child_process');
-const chokidar = require('chokidar');
-const ts = require('typescript');
+const fs = require('fs-extra');// fs-extra 读写文件
+const { exec } = require('child_process');// child_process 执行命令（比如 tsc）
+const chokidar = require('chokidar');// chokidar 监听（可选）
+const ts = require('typescript');// typescript 做 TSC 编译（可能直接 npx tsc 也可以）
 const packageJson = require('./package.json');
-const esbuild = require('esbuild');
-// babel 编译
-// fast-glob 找文件
-// fs-extra 读写文件
-// child_process 执行命令（比如 tsc）
-// chokidar 监听（可选）
-// typescript 做 TSC 编译（可能直接 npx tsc 也可以）
-// esbuild 替代 ncc 进行打包外部包
+const esbuild = require('esbuild');// esbuild 替代 ncc 进行打包外部包
 
+ 
 
 
  
@@ -89,30 +83,7 @@ const defaultTSConfig = {
 };
 
 
-// ====== 工具函数 ======
-
-async function babelCompileDir_old(srcDir, outDir, isClient = false) {
-  const files = await glob(['**/*.{js,ts,tsx}'], { cwd: srcDir, absolute: true });
-
-  await Promise.all(files.map(async (file) => {
-    const relativePath = path.relative(srcDir, file);
-    const outPath = path.join(outDir, relativePath).replace(/\.(ts|tsx)$/, '.js');
-    const options = isClient ? clientBabelOptions : serverBabelOptions;
-
-    const result = await babel.transformFileAsync(file, options);
-    if (result && result.code) {
-      await fs.ensureDir(path.dirname(outPath));
-      await fs.writeFile(outPath, result.code);
-      if (result.map) {
-        await fs.writeFile(outPath + '.map', JSON.stringify(result.map));
-      }
-    }
-  }));
-
-  console.log(`> Babel compiled ${srcDir} -> ${outDir}`);
-}
-
-
+// ====== 工具函数 ====== 
 
 // 把原来 taskfile-babel.js 的逻辑也整合进新的 babelCompileDir 函数。
 // 特别是里面这些额外功能也要包含：
@@ -180,27 +151,10 @@ async function babelCompileDir(srcDir, outDir, { isClient = false, stripExtensio
   console.log(`> Babel compiled ${srcDir} -> ${outDir}`);
 }
 
-
-
-
-
+ 
  
 
-// 执行TSC编译
-function runTSC_old(tsconfigPath = 'tsconfig.json') {
-  return new Promise((resolve, reject) => {
-    exec(`npx tsc --project ${tsconfigPath}`, (err, stdout, stderr) => {
-      if (err) {
-        console.error(stderr);
-        reject(err);
-      } else {
-        console.log(stdout);
-        resolve();
-      }
-    });
-  });
-}
-
+// 执行TSC编译 
 // 直接 Node.js 控制编译，不跑子进程，不调用 npx tsc
 // 行为跟原来 taskfile-typescript.js 完全一致
 // 支持 .ts、.tsx 和 .d.ts 文件
@@ -266,46 +220,8 @@ async function runTSC(srcDir, outDir, extraOptions = {}) {
 
 
 
+  
  
-
-
-
-
-
-
-
-
-
-
-
-// 使用ncc打包
-async function runNCC_old(entryFile, outDir, packageName) {
-  const { build } = require('@vercel/ncc');
-  const { code } = await build(entryFile, {
-    externals: [],
-    minify: false,
-    target: 'node',
-    sourceMap: false,
-    license: false
-  });
-
-  const outPath = path.join(outDir, `${packageName}.js`);
-  await fs.ensureDir(outDir);
-  await fs.writeFile(outPath, code);
-  console.log(`> NCC compiled ${entryFile} -> ${outPath}`);
-}
-
-async function precompile_old() {
-  await Promise.all([
-    runNCC(require.resolve('unistore'), 'dist/compiled'),
-    runNCC(require.resolve('resolve'), 'dist/compiled'),
-    runNCC(require.resolve('arg'), 'dist/compiled'),
-    runNCC(require.resolve('nanoid'), 'dist/compiled'),
-    runNCC(require.resolve('text-table'), 'dist/compiled')
-  ]);
-}
-
-
 
 ///=== 用 esbuild 重新打包	用 esbuild 打包单个包，生成干净的 index.js + 依赖	类似 ncc，很快，且更小巧
 async function bundleWithEsbuild(packageName, options = {}) {
@@ -399,8 +315,7 @@ async function compile() {
     babelCompileDir('telemetry', 'dist/telemetry'),
     babelCompileDir('pages', 'dist/pages', true),
 
-   /// nextserverserver(),
-  ///  nextserverlib()
+ 
    runTSC('next-server/lib', 'dist/next-server/lib', { module: ts.ModuleKind.CommonJS }),
    runTSC('next-server/server', 'dist/next-server/server', { module: ts.ModuleKind.CommonJS })
   ]);
@@ -408,37 +323,7 @@ async function compile() {
 
 
 // ------------------ 封装具体任务 ------------------ //
-
-// async function nextserverlib() {
-//   const src = 'next-server/lib';
-//   const out = 'dist/next-server/lib';
-//   await runTSC(src, out, { module: ts.ModuleKind.CommonJS });
-//   console.log('✅ Compiled lib files');
-// }
-
-// async function nextserverserver() {
-//   const src = 'next-server/server';
-//   const out = 'dist/next-server/server';
-//   await runTSC(src, out, { module: ts.ModuleKind.CommonJS });
-//   console.log('✅ Compiled server files');
-// }
-
-// async function nextserverbuild() {
-//   await Promise.all([
-//     nextserverserver(),
-//     nextserverlib()
-//   ]);
-
-//   console.log('✅ Server finished!');
-// }  await nextserverbuild();
-
-// async function release() {
-//   await buildAll();
-
-
-
-//   console.log('✅ Release finished!');
-// }
+ 
  
 async function buildAll() {
   await clearDist();
@@ -495,47 +380,4 @@ main().catch((err) => {
   console.error(err);
   process.exit(1);
 });
-
-
  
-
-
-
-// async function main() {
-//   const cmd = process.argv[2];
-
-//   if (cmd === 'nextserverbuild') {
-//     await nextserverbuild();
-//   } else if (cmd === 'release') {
-//     await release();
-//   } else {
-//     console.error(`Unknown command: ${cmd}`);
-//     process.exit(1);
-//   }
-// }
-
-// main().catch((err) => {
-//   console.error(err);
-//   process.exit(1);
-// });
- 
-
-// const arg = process.argv[2];
-
-// (async () => {
-//   try {
-//     if (arg === 'build') {
-//       await buildAll();
-//     } else if (arg === 'watch') {
-//       await buildAll();
-//       await watchAll();
-//     } else if (arg === 'release') {
-//       await release();
-//     } else {
-//       console.log('Usage: node build.js [build|watch|release]');
-//     }
-//   } catch (err) {
-//     console.error(err);
-//     process.exit(1);
-//   }
-// })();
